@@ -6,6 +6,7 @@ import {BrowserRouter, Switch, Route} from 'react-router-dom';
 import FormularioCadastro from '../pages/FormularioCadastro';
 import Pagamento from '../pages/CheckoutCard';
 import Capa from '../pages/Capa'
+import Paycheck from '../pages/Paycheck'
 
 function Routes(){
     return(
@@ -14,6 +15,7 @@ function Routes(){
                 <Route path="/" exact component={Capa} />
                 <Route path="/Forms" component={FormularioCadastro} />
                 <Route path="/cardpay" component={Pagamento} />
+                <Route path="/paycheck" component={Paycheck} />
             </Switch>        
         </BrowserRouter>
     );

@@ -4,13 +4,14 @@ import pagarme from 'pagarme'
 import { Link } from "react-router-dom";
 import {useSelector, useDispatch} from 'react-redux'
 import {selector} from '../selector'
-
+import { cpf } from 'cpf-cnpj-validator'; 
+import { mask as masker, unMask } from "remask";
 
 
 
 function FormularioCadastro({aoEnviar, validarRG}) {
   const [nome, setNome] = useState("");
-  const [cpf, setCPF] = useState("");
+  const [CPF, setCPF] = useState("");
   const [email, setEmail] = useState("")
   const [erros, setErros] = useState({rg:{valido:true, texto:""}});
   const valor2 = useSelector(selector.getNome);
@@ -18,18 +19,18 @@ function FormularioCadastro({aoEnviar, validarRG}) {
   const dispatch = useDispatch();
 
   function salva() {
-    dispatch({type: 'CLICK_UPDATE_VALUE', value: nome, value2: cpf, value3: email})
+    dispatch({type: 'CLICK_UPDATE_VALUE', value: nome, value2: CPF, value3: email})
   } 
 
   pagarme.client.connect({ api_key: 'ak_test_Y3WjbDGmMDR1BV0hrBBypUuuaygGti' })
 
   
 
-  function validarCPF(cpf){
-    if(cpf.length !== 11){ 
-      return {valido:false, texto:"CPF deve ter 11 digitos."}
-    }else{
+  function validarCPF(CPF){
+    if(cpf.isValid(CPF) === true){ 
       return {valido:true, texto:""}
+    }else{
+      return {valido:false, texto:"CPF Incorreto."}
     }
   }
   
@@ -41,9 +42,11 @@ function FormularioCadastro({aoEnviar, validarRG}) {
     <form
       onSubmialidot={(event) => {
         event.preventDefault();
-        validarCPF({cpf});
+        validarCPF({CPF});
       }}
     >
+    <br/>
+    Nome:
       <TextField
         value={nome}
         onChange={(event) => {
@@ -55,41 +58,47 @@ function FormularioCadastro({aoEnviar, validarRG}) {
         margin="normal"
         fullWidth
       />
-
+      <br/>
+      
+      Email:
       <TextField
         value={email}
         onChange={(event) => {
           setEmail(event.target.value);
         }}
         id="email"
-        label="Email"
+        type = "email"
+        label="Email (@gmail.com, outlook.com...)"
         variant="outlined"
         margin="normal"
         fullWidth
       />
-
+      <br/>
+      
+      CPF
       <TextField
-        value={cpf}
+        value={masker(CPF,["999.999.999-99"])}
         onChange={(event) => {
-          setCPF(event.target.value);
-          console.log( valor2)
+          setCPF(unMask(event.target.value));
+          console.log( valor2, CPF, event.target.value)
         }}
 
         onBlur={(event)=>{
-          const ehValido = validarCPF(cpf);
+          const ehValido = validarCPF(CPF);
           setErros({rg:ehValido})
           console.log(ehValido, valor2, valor3)
         }}
         error={!erros.rg.valido}
         helperText={erros.rg.texto}
+        label = "CPF (Apenas números)"
         id="cpf"
-        label="CPF"
         variant="outlined"
         margin="normal"
         fullWidth
       />
+      <br/>
 
-      <Link to = "/cardpay">
+      <Link to = "/cardpay" style={{ textDecoration: 'none' }}>
       <Button variant="contained" color="primary" onClick = {salva()}>
         Cadastrar
       </Button>
