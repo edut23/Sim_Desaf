@@ -1,20 +1,28 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Typography, Container} from "@material-ui/core";
-import { Link } from "react-router-dom";
 import './index.css'
-
+import FormularioCadastro from "../FormularioCadastro";
 function Capa() {
+
+    const [forms, setForms] = useState(false);  
+
+    
+    function abridorF(){
+        setForms(forms => !forms)        
+    }
+    
+
     
     return (
       <Container>
       <Typography variant="h3" component="h1" align="center" >Desafio Simulado</Typography>
-      <h1>Simulado Online</h1>
-      <h2>Valor: R$80,00</h2>
-        <Link to = "/forms" style={{ textDecoration: 'none' }}>
-        <Button variant="contained" color="primary" align="center">
-          Cadastrar
-        </Button>
-        </Link>
+      <h3>Simulado Online</h3>
+      <h4>Valor: R$80,00</h4>
+      <Button variant="contained" color="primary" text-align="right" onClick = {abridorF}>Inscreva-se</Button>
+      <br/>
+      {forms &&<div>
+      <FormularioCadastro/>
+      </div>}
       </Container>
     );
   }

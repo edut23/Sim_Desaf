@@ -1,23 +1,24 @@
 import React, {useState} from 'react';
-import { TextField, Button, Typography, Container } from "@material-ui/core";
+import { TextField, Button, Typography} from "@material-ui/core";
 import pagarme from 'pagarme'
 import {useSelector} from 'react-redux'
 import {selector} from '../selector'
 import { mask as masker, unMask } from "remask";
 import Cards from 'react-credit-cards'
 import 'react-credit-cards/es/styles-compiled.css';
-import { useHistory } from 'react-router';
+import Paycheck from '../PaycheckCard'
+import ReactLoading from 'react-loading';
 
 
 function SobreEmpresa(){
-  fetch('http://localhost:3000', {
+  /*fetch('http://localhost:3000', {
     mode: 'no-cors',
     method: "post",
     headers: {
          "Content-Type": "application/json"
     },
     body: JSON.stringify()
-})
+})*/
 
   const [card_number, setNumb] = useState("");
   const [Nome_card, setNome_card] = useState("");
@@ -27,7 +28,9 @@ function SobreEmpresa(){
   const cpf = useSelector(selector.getCpf);
   const email = useSelector(selector.getEmail);
   const [focused, setFocused] = useState("");
-  let history = useHistory()
+  const [okpay, setOkpay] = useState(false);
+  const [loading, setLoading] = useState(false);
+
 
   function retCard(card_number){
     if(card_number !== undefined){
@@ -56,10 +59,19 @@ function SobreEmpresa(){
     }
   }
 
+ /*function loader(){
+    return [
+      loading ? <ReactLoading type= "spin" color= "blue" height={667} width={375} /> : null,
+      () => setLoading(true),
+      () => setLoading(false),
+      console.log(loading)
+    ]
+  }*/
+
 
 
   function pagar(){
-    alert("Realizando pagamento, aguarde.")
+    setLoading(true)
     pagarme.client.connect({ api_key: 'ak_test_Y3WjbDGmMDR1BV0hrBBypUuuaygGti' })
       .then(client => client.transactions.create({
         "amount": 8000,
@@ -105,18 +117,15 @@ function SobreEmpresa(){
         ]
         
       }))
-      .then(transaction => get(transaction.status)) 
+      .then(transaction => {get(transaction.status); setLoading(false)})
+      .catch(e => {alert("Pagamento não realizado, verifique seus dados."); setLoading(false)}) 
 
-        function foi(){
-          history.push("/paycheck")
-        }
       
 
       function get(info){
         const id = info
         if(id === "paid"){
-          alert("Pagamento realizado. ", id)
-          foi()
+          setOkpay(okpay => !okpay) 
         }
       }
       
@@ -130,12 +139,12 @@ function SobreEmpresa(){
     
     
     return(
-      <Container>
         <form
       onSubmialidot={(event) => {
         event.preventDefault();
       }}>
-        <Typography variant="h3" component="h1" align="center" >Dados do cartão</Typography>
+        <br/>
+        <Typography variant="h3" component="h1" align="left" >Dados do cartão</Typography>
         <br/>
 
         <Cards
@@ -145,7 +154,8 @@ function SobreEmpresa(){
           cvc={CVV}
           focused={focused}
         />
-      <div id="form">
+      <div id="form" autocomplete="on">
+      {loading && <ReactLoading type= "spin" color= "blue" height={667} width={375} align="center" z-index = {1000} position = "absolute" />}
       Número do cartão: <TextField 
       value={masker(card_number, ["9999999999999999"])}
       onChange={(event) => {
@@ -154,7 +164,7 @@ function SobreEmpresa(){
         console.log(card_number)
         }}
       onFocus={changeFocus}
-      type="text" id="card_number" label="Número" variant="outlined" margin="normal"  fullWidth/>
+      type="text" id="card_number" placeholder="Número" variant="outlined" margin="normal"  fullWidth/>
       <br/>
       Nome (como escrito no cartão): <TextField
       value={Nome_card}
@@ -173,7 +183,7 @@ function SobreEmpresa(){
         console.log( Exp, event.target.value)
       }}
       onFocus={changeFocus} 
-      label="Mês/Ano" id="Exp" variant="outlined" margin="normal" fullWidth/>
+      placeholder="Mês/Ano" id="Exp" variant="outlined" margin="normal" fullWidth/>
       <br/>
       Código de segurança: <TextField
       value={masker(CVV,["999"])}
@@ -183,18 +193,22 @@ function SobreEmpresa(){
         console.log(card_number, Nome_card, CVV, Exp, nome, cpf)
       }}
       onFocus={changeFocus} 
-      type="text" id="CVV" label="CVV" variant="outlined" margin="normal" fullWidth/>
+      type="text" id="CVV" placeholder="CVV" variant="outlined" margin="normal" fullWidth/>
       <br/>
       <div id="field_errors">
       </div>
       <br/>
   </div>
+
   <form id="payment_form">
-      <Button variant="contained" color="primary" onClick = {pagar}>Pagar</Button>
+      <Button variant="contained" color="primary" onClick = {pagar}>Pagar</Button> 
   </form>
+  <br/>{okpay &&
+      <Paycheck/>}
   </form>
-  </Container>
     );
 };
 
 export default SobreEmpresa;
+
+//<Button variant="contained" color="primary" onClick = {abridorO}>Conferir dados</Button>

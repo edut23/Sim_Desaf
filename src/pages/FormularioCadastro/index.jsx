@@ -1,11 +1,12 @@
 import React, { useState} from "react";
 import { TextField, Button, Typography, Container} from "@material-ui/core";
 import pagarme from 'pagarme'
-import { Link } from "react-router-dom";
 import {useSelector, useDispatch} from 'react-redux'
 import {selector} from '../selector'
 import { cpf } from 'cpf-cnpj-validator'; 
 import { mask as masker, unMask } from "remask";
+import SobreEmpresa from '../CheckoutCard'
+import Boleto from "../CheckoutBol";
 
 
 
@@ -17,6 +18,20 @@ function FormularioCadastro({aoEnviar, validarRG}) {
   const valor2 = useSelector(selector.getNome);
   const valor3 = useSelector(selector.getCpf);
   const dispatch = useDispatch();
+  const [card, setCard] = useState(false);
+  const [bol, setBol] = useState(false);
+
+
+  function abridorC(){
+    if(cpf.isValid(CPF) === true)
+    setCard(card => !card) 
+    setBol(bol => false)       
+}
+  function abridorB(){
+    if(cpf.isValid(CPF) === true)
+    setBol(bol => !bol)
+    setCard(card => false)        
+}
 
   function salva() {
     dispatch({type: 'CLICK_UPDATE_VALUE', value: nome, value2: CPF, value3: email})
@@ -28,6 +43,7 @@ function FormularioCadastro({aoEnviar, validarRG}) {
 
   function validarCPF(CPF){
     if(cpf.isValid(CPF) === true){ 
+      salva()
       return {valido:true, texto:""}
     }else{
       return {valido:false, texto:"CPF Incorreto."}
@@ -38,13 +54,9 @@ function FormularioCadastro({aoEnviar, validarRG}) {
   
   return (
     <Container>
-    <Typography variant="h3" component="h1" align="center" >Formulário de cadastro</Typography>
-    <form
-      onSubmialidot={(event) => {
-        event.preventDefault();
-        validarCPF({CPF});
-      }}
-    >
+    <br/>
+    <Typography variant="h3" component="h1" align="left" >Formulário de cadastro</Typography>
+    
     <br/>
     Nome:
       <TextField
@@ -97,16 +109,23 @@ function FormularioCadastro({aoEnviar, validarRG}) {
         fullWidth
       />
       <br/>
-
-      <Link to = "/cardpay" style={{ textDecoration: 'none' }}>
-      <Button variant="contained" color="primary" onClick = {salva()}>
-        Cadastrar
-      </Button>
-      </Link>
-    </form>
+      <Button variant="contained" color="primary" onClick = {abridorC}>Cartão de crédito</Button>
+      <Button variant="contained" color="primary" onClick = {abridorB}>Boleto</Button>
+      {card && <div>
+      <SobreEmpresa/>
+      </div>}
+      {bol && <div>
+      <Boleto/>
+      </div>}
     </Container>
   );
 }
 
 export default FormularioCadastro
 
+/*<form
+      onSubmialidot={(event) => {
+        event.preventDefault();
+        validarCPF({CPF});
+      }}
+    >*/

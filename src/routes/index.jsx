@@ -6,7 +6,7 @@ import {BrowserRouter, Switch, Route} from 'react-router-dom';
 import FormularioCadastro from '../pages/FormularioCadastro';
 import Pagamento from '../pages/CheckoutCard';
 import Capa from '../pages/Capa'
-import Paycheck from '../pages/Paycheck'
+import Paycheck from '../pages/PaycheckCard'
 
 function Routes(){
     return(
